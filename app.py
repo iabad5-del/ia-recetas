@@ -1,4 +1,5 @@
 import streamlit as st
+import json  # <-- afegit nou
 
 st.title("Generador de receptes")
 
@@ -11,7 +12,6 @@ if st.button("Generar recepta (mock)"):
     if ingredients.strip() == "":
         st.warning("No has escrit cap ingredient.")
     else:
-        # Recepta simulada (mock), més endavant vindrà d'un LLM
         recipe = {
             "title": "Pasta amb salsa de tomàquet ràpida",
             "servings": 2,
@@ -32,6 +32,13 @@ if st.button("Generar recepta (mock)"):
             ]
         }
 
+        # 1) Convertir el diccionari a JSON (text)
+        recipe_json = json.dumps(recipe, ensure_ascii=False, indent=2)
+
+        st.markdown("### JSON de la recepta (simulació de resposta d'un LLM)")
+        st.code(recipe_json, language="json")
+
+        # 2) Mostrar la recepta parsejada com abans
         st.subheader(recipe["title"])
         st.write(f"Racions: {recipe['servings']}")
         st.write(f"Temps aproximat: {recipe['time_minutes']} minuts")
