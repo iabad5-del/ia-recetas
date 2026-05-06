@@ -77,25 +77,21 @@ def call_llm_mock(prompt: str) -> dict:
     return recipe
 
 
-# ------------------- CRIDA REAL AL LLM (ESQUELET) -------------------
+# ------------------- CRIDA REAL AL LLM (OPENROUTER) -------------------
 
 def call_llm_real(prompt: str) -> dict:
     """
-    Crida real a un model LLM via una API OpenAI-compatible (per exemple GPTFree o similar).
-    - Assumeix un endpoint tipus /v1/chat/completions.
-    - Rep un prompt (text) i retorna un diccionari Python amb la recepta.
+    Crida real a un model LLM via OpenRouter (API OpenAI-compatible).
     """
 
-    # 1. Configuració bàsica de l'API
-    # TODO: canvieu aquesta URL per la URL del vostre proveïdor
-    api_url = "https://API_BASE_URL/v1/chat/completions"
+    # 1. Configuració bàsica de l'API d'OpenRouter
+    api_url = "https://openrouter.ai/api/v1/chat/completions"
 
-    # API key del proveïdor (millor com a variable d'entorn)
     api_key = os.environ.get("LLM_API_KEY", "")
     if not api_key:
         raise RuntimeError(
             "No s'ha trobat la variable d'entorn LLM_API_KEY. "
-            "Definiu-la amb la vostra API key del proveïdor."
+            "Defineix-la amb la teva API key d'OpenRouter."
         )
 
     headers = {
@@ -105,8 +101,7 @@ def call_llm_real(prompt: str) -> dict:
 
     # 2. Cos de la petició (format OpenAI-style)
     payload = {
-        # TODO: canvieu el nom del model pel que indiqui el vostre proveïdor
-        "model": "NOM_DEL_MODEL",
+        "model": "openrouter/auto",  # OpenRouter tria un model adequat
         "messages": [
             {"role": "user", "content": prompt}
         ],
@@ -120,7 +115,6 @@ def call_llm_real(prompt: str) -> dict:
     result = response.json()
 
     # 4. Extreure el text de la resposta
-    # Format típic OpenAI-like: choices[0].message.content
     try:
         content = result["choices"][0]["message"]["content"]
     except (KeyError, IndexError) as e:
@@ -156,8 +150,8 @@ st.title("Generador de receptes a partir d'ingredients")
 
 st.write(
     "Introdueix els ingredients que tens disponibles i genera una recepta. "
-    "Ara mateix pots fer servir una resposta simulada (mock) o, quan estigui configurada, "
-    "una crida real a un model de llenguatge (LLM)."
+    "Pots fer servir una resposta simulada (mock) o, quan estigui configurada, "
+    "una crida real a un model de llenguatge (LLM) via OpenRouter."
 )
 
 ingredients = st.text_area(
