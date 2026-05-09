@@ -12,6 +12,10 @@ class MockLLMClient:
         """Return a deterministic valid recipe payload."""
         _ = prompt
         return {
+            "chain_of_thought": (
+                "1. Analizo ingredientes base. 2. Elijo una receta simple con tomate y pasta. "
+                "3. Propongo tecnica rapida para principiantes."
+            ),
             "title": "Pasta con salsa de tomate rapida",
             "servings": 2,
             "ingredients": [
@@ -30,4 +34,3 @@ class MockLLMClient:
                 "Sirve caliente con queso rallado por encima.",
             ],
         }
-

@@ -20,6 +20,7 @@ class Recipe:
     time_minutes: int
     difficulty: str
     steps: list[str]
+    chain_of_thought: str | None = None
 
     def __post_init__(self) -> None:
         """Validate and normalize recipe fields."""
@@ -35,6 +36,11 @@ class Recipe:
         self.difficulty = normalized_difficulty
 
         self.steps = _validate_non_empty_string_list("steps", self.steps)
+        if self.chain_of_thought is not None:
+            self.chain_of_thought = _validate_non_empty_string(
+                "chain_of_thought",
+                self.chain_of_thought,
+            )
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "Recipe":
@@ -52,18 +58,26 @@ class Recipe:
             time_minutes=data["time_minutes"],
             difficulty=data["difficulty"],
             steps=list(data["steps"]),
+            chain_of_thought=data.get("chain_of_thought", data.get("chain_of_thougt")),
         )
 
     def to_dict(self) -> dict[str, Any]:
         """Export recipe as a JSON-serializable dictionary."""
-        return {
-            "title": self.title,
-            "servings": self.servings,
-            "ingredients": list(self.ingredients),
-            "time_minutes": self.time_minutes,
-            "difficulty": self.difficulty,
-            "steps": list(self.steps),
-        }
+        payload: dict[str, Any] = {}
+        if self.chain_of_thought is not None:
+            payload["chain_of_thought"] = self.chain_of_thought
+
+        payload.update(
+            {
+                "title": self.title,
+                "servings": self.servings,
+                "ingredients": list(self.ingredients),
+                "time_minutes": self.time_minutes,
+                "difficulty": self.difficulty,
+                "steps": list(self.steps),
+            }
+        )
+        return payload
 
 
 def _validate_non_empty_string(field_name: str, value: Any) -> str:
@@ -94,4 +108,3 @@ def _validate_non_empty_string_list(field_name: str, value: Any) -> list[str]:
     for item in value:
         cleaned_items.append(_validate_non_empty_string(field_name, item))
     return cleaned_items
-

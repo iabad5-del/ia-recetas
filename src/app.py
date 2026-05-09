@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any, Mapping
 
 import streamlit as st
 
@@ -17,6 +18,11 @@ from exceptions import (
 )
 from llm.client import OpenRouterClient
 from llm.mock_client import MockLLMClient
+from llm.recipe_schema import (
+    get_field_schema,
+    is_field_hidden,
+    iter_recipe_schema_fields,
+)
 from services.recipe_service import RecipeService
 
 logging.basicConfig(
@@ -37,21 +43,66 @@ def build_recipe_service(use_mock: bool, temperature: float) -> RecipeService:
 
 def render_recipe(recipe: Recipe) -> None:
     """Render a validated recipe in the UI."""
+    recipe_data = recipe.to_dict()
+
     with st.expander("Ver JSON de la receta", expanded=False):
-        st.code(json.dumps(recipe.to_dict(), ensure_ascii=False, indent=2), language="json")
+        st.code(json.dumps(recipe_data, ensure_ascii=False, indent=2), language="json")
 
-    st.subheader(recipe.title)
-    st.write(f"Raciones: {recipe.servings}")
-    st.write(f"Tiempo aproximado: {recipe.time_minutes} minutos")
-    st.write(f"Dificultad: {recipe.difficulty}")
+    rendered_fields: set[str] = set()
+    for field_name in iter_recipe_schema_fields():
+        if field_name not in recipe_data:
+            continue
+        _render_recipe_field(
+            field_name=field_name,
+            field_value=recipe_data[field_name],
+            field_schema=get_field_schema(field_name),
+        )
+        rendered_fields.add(field_name)
 
-    st.markdown("### Ingredientes")
-    for ingredient in recipe.ingredients:
-        st.write(f"- {ingredient}")
+    for field_name, field_value in recipe_data.items():
+        if field_name in rendered_fields or is_field_hidden(field_name):
+            continue
+        _render_recipe_field(
+            field_name=field_name,
+            field_value=field_value,
+            field_schema={},
+        )
 
-    st.markdown("### Pasos")
-    for index, step in enumerate(recipe.steps, start=1):
-        st.write(f"{index}. {step}")
+
+def _render_recipe_field(
+    field_name: str,
+    field_value: Any,
+    field_schema: Mapping[str, Any],
+) -> None:
+    """Render a single recipe field based on schema metadata."""
+    if is_field_hidden(field_name):
+        return
+
+    widget = field_schema.get("x-ui-widget")
+    if widget == "title" and isinstance(field_value, str):
+        st.subheader(field_value)
+        return
+
+    label = _field_label(field_name, field_schema)
+    if isinstance(field_value, list):
+        st.markdown(f"### {label}")
+        list_style = field_schema.get("x-ui-list-style")
+        for index, item in enumerate(field_value, start=1):
+            if list_style == "numbered":
+                st.write(f"{index}. {item}")
+            else:
+                st.write(f"- {item}")
+        return
+
+    st.write(f"{label}: {field_value}")
+
+
+def _field_label(field_name: str, field_schema: Mapping[str, Any]) -> str:
+    """Return a display label for a field."""
+    schema_title = field_schema.get("title")
+    if isinstance(schema_title, str) and schema_title.strip():
+        return schema_title.strip()
+    return field_name.replace("_", " ").capitalize()
 
 
 def main() -> None:

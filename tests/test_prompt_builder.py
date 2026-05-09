@@ -10,5 +10,5 @@ def test_build_recipe_prompt_includes_ingredients_and_json_instruction() -> None
 
     assert ingredients in prompt
     assert "Answer ONLY with the JSON object." in prompt
-    assert '"title": "string, short and descriptive name of the recipe"' in prompt
-
+    assert '"$schema": "https://json-schema.org/draft/2020-12/schema"' in prompt
+    assert '"chain_of_thought"' in prompt
