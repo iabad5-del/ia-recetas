@@ -16,7 +16,10 @@ class LLMRequestError(RecipeAppError):
 class InvalidLLMResponseError(RecipeAppError):
     """Raised when the LLM returns an unexpected or invalid response."""
 
+    def __init__(self, message: str, *, raw_response: str | None = None) -> None:
+        super().__init__(message)
+        self.raw_response = raw_response
+
 
 class ValidationError(RecipeAppError):
     """Raised when domain or input validation fails."""
-

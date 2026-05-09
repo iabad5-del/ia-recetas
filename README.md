@@ -50,7 +50,6 @@ Variables de entorno soportadas:
 - `LLM_MODEL` (default: `openrouter/auto`)
 - `LLM_TIMEOUT_SECONDS` (default: `30`)
 - `LLM_MAX_TOKENS` (default: `600`)
-- `LLM_TEMPERATURE` (default: `0.7`)
 
 Ejemplo PowerShell:
 
@@ -83,4 +82,3 @@ Incluye tests unitarios para:
 - `RecipeService`
 - Prompt builder
 - Mock client
-

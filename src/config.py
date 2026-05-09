@@ -20,14 +20,14 @@ class AppConfig:
     temperature: float
 
     @classmethod
-    def from_env(cls) -> "AppConfig":
-        """Build configuration from environment variables."""
+    def from_env(cls, *, temperature: float = 0.7) -> "AppConfig":
+        """Build configuration from environment variables and runtime parameters."""
         api_url = os.getenv("LLM_API_URL", "https://openrouter.ai/api/v1/chat/completions").strip()
         api_key = os.getenv("LLM_API_KEY", "").strip()
         model = os.getenv("LLM_MODEL", "openrouter/auto").strip()
         timeout_seconds = _parse_float("LLM_TIMEOUT_SECONDS", default=30.0, min_value=0.1)
         max_tokens = _parse_int("LLM_MAX_TOKENS", default=600, min_value=1)
-        temperature = _parse_float("LLM_TEMPERATURE", default=0.7, min_value=0.0, max_value=2.0)
+        resolved_temperature = _validate_float("temperature", temperature, min_value=0.0, max_value=1.0)
 
         if not api_url:
             raise LLMConfigurationError("LLM_API_URL cannot be empty.")
@@ -40,7 +40,7 @@ class AppConfig:
             model=model,
             timeout_seconds=timeout_seconds,
             max_tokens=max_tokens,
-            temperature=temperature,
+            temperature=resolved_temperature,
         )
 
 
@@ -75,3 +75,20 @@ def _parse_float(
         raise LLMConfigurationError(f"{name} must be <= {max_value}. Received: {value}")
     return value
 
+
+def _validate_float(
+    name: str,
+    value: float,
+    *,
+    min_value: float | None = None,
+    max_value: float | None = None,
+) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise LLMConfigurationError(f"{name} must be a number. Received: {value!r}")
+
+    numeric_value = float(value)
+    if min_value is not None and numeric_value < min_value:
+        raise LLMConfigurationError(f"{name} must be >= {min_value}. Received: {numeric_value}")
+    if max_value is not None and numeric_value > max_value:
+        raise LLMConfigurationError(f"{name} must be <= {max_value}. Received: {numeric_value}")
+    return numeric_value

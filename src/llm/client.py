@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any
 
 import requests
@@ -13,6 +14,8 @@ from exceptions import (
     LLMConfigurationError,
     LLMRequestError,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class OpenRouterClient:
@@ -63,17 +66,27 @@ class OpenRouterClient:
         try:
             provider_response = response.json()
         except ValueError as exc:
-            raise InvalidLLMResponseError("Provider returned non-JSON response payload.") from exc
+            raise InvalidLLMResponseError(
+                "Provider returned non-JSON response payload.",
+                raw_response=response.text,
+            ) from exc
 
         content = self._extract_content(provider_response)
+        logger.info("LLM raw response content: %s", content)
 
         try:
             parsed = json.loads(content)
         except json.JSONDecodeError as exc:
-            raise InvalidLLMResponseError("LLM content is not valid JSON.") from exc
+            raise InvalidLLMResponseError(
+                "LLM content is not valid JSON.",
+                raw_response=content,
+            ) from exc
 
         if not isinstance(parsed, dict):
-            raise InvalidLLMResponseError("LLM JSON response must be an object.")
+            raise InvalidLLMResponseError(
+                "LLM JSON response must be an object.",
+                raw_response=content,
+            )
         return parsed
 
     @staticmethod
@@ -90,4 +103,3 @@ class OpenRouterClient:
             raise InvalidLLMResponseError("Provider returned empty completion content.")
 
         return content
-
