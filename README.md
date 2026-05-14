@@ -47,7 +47,7 @@ Variables de entorno soportadas:
 
 - `LLM_API_KEY` (obligatoria solo en modo real)
 - `LLM_API_URL` (default: `https://openrouter.ai/api/v1/chat/completions`)
-- `LLM_MODEL` (default: `openrouter/auto`)
+- `LLM_MODEL` (default: `openrouter/free`)
 - `LLM_TIMEOUT_SECONDS` (default: `30`)
 - `LLM_MAX_TOKENS` (default: `600`)
 
@@ -55,7 +55,7 @@ Ejemplo PowerShell:
 
 ```powershell
 $env:LLM_API_KEY="tu_api_key"
-$env:LLM_MODEL="openrouter/auto"
+$env:LLM_MODEL="openrouter/free"
 ```
 
 ## Ejecucion

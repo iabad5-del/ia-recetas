@@ -63,6 +63,29 @@ Return the recipe STRICTLY as a single JSON object that validates against this J
 {recipe_schema}
 </json_schema>
 
+<example>
+   {{
+      "chain_of_thought": "1. Analizo ingredientes base. 2. Elijo una receta simple con tomate y pasta. 3. Propongo tecnica rapida para principiantes.",
+      "title": "Pasta con salsa de tomate rapida",
+      "servings": 2,
+      "ingredients": [
+         "200 g de pasta",
+         "2 tomates maduros",
+         "2 cucharadas de aceite de oliva",
+         "50 g de queso rallado",
+         "Sal y pimienta al gusto"
+      ],
+      "time_minutes": 20,
+      "difficulty": "Easy",
+      "steps": [
+         "Hierve la pasta en agua con sal hasta que quede al dente.",
+         "Sofrie los tomates picados con aceite de oliva durante 8 minutos.",
+         "Mezcla la pasta escurrida con la salsa de tomate y ajusta sal y pimienta.",
+         "Sirve caliente con queso rallado por encima."
+      ]
+   }}
+</example>
+
 <rules>
 - Use mostly the ingredients provided, you can add a few basic pantry items if needed (salt, oil, etc.).
 - Make sure the JSON is valid and can be parsed by a JSON parser.
