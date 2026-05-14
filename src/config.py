@@ -24,7 +24,7 @@ class AppConfig:
         """Build configuration from environment variables and runtime parameters."""
         api_url = os.getenv("LLM_API_URL", "https://openrouter.ai/api/v1/chat/completions").strip()
         api_key = os.getenv("LLM_API_KEY", "").strip()
-        model = os.getenv("LLM_MODEL", "openrouter/auto").strip()
+        model = os.getenv("LLM_MODEL", "openrouter/free").strip()
         timeout_seconds = _parse_float("LLM_TIMEOUT_SECONDS", default=30.0, min_value=0.1)
         max_tokens = _parse_int("LLM_MAX_TOKENS", default=600, min_value=1)
         resolved_temperature = _validate_float("temperature", temperature, min_value=0.0, max_value=1.0)
